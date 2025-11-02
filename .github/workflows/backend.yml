@@ -28,3 +28,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Install dependencies
+        run: cd backend && pnpm install
+
+      - name: Lint
+        run: cd backend && pnpm lint
+
+      - name: Type check
+        run: cd backend && pnpm typecheck
+
+      - name: Build
+        run: cd backend && pnpm build
