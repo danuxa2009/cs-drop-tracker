@@ -18,13 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js and pnpm
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          pnpm-version: latest 
           cache: 'pnpm'
           cache-dependency-path: 'backend/pnpm-lock.yaml'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
         run: cd backend && pnpm install
