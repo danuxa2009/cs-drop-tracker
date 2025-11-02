@@ -2,12 +2,12 @@ name: Backend CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'backend/**'
       - '.github/workflows/backend.yml'
   pull_request:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'backend/**'
 
@@ -22,11 +22,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          pnpm-version: latest 
           cache: 'pnpm'
           cache-dependency-path: 'backend/pnpm-lock.yaml'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
 
       - name: Install dependencies
         run: cd backend && pnpm install
