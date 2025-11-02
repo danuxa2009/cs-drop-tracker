@@ -18,22 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js and pnpm
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           pnpm-version: latest 
           cache: 'pnpm'
           cache-dependency-path: 'backend/pnpm-lock.yaml'
-
-      - name: 🔎 Debug PATH and pnpm location
-        run: |
-          echo "Current PATH:"
-          echo $PATH
-          echo "pnpm version check:"
-          pnpm -v || echo "pnpm command failed to run"
-          echo "Search for pnpm executable:"
-          find /opt/hostedtoolcache/node -name pnpm -type f
 
       - name: Install dependencies
         run: cd backend && pnpm install
