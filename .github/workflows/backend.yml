@@ -57,5 +57,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Type check
+        run: cd backend && pnpm typecheck
+
       - name: Build
         run: cd backend && pnpm build
+
+   coderabbit-review:
+     if: github.event_name == 'pull_request'
+     runs-on: ubuntu-latest
+     permissions:
+       pull-requests: write
+     steps:
+       - uses: actions/checkout@v3
+       - name: Run CodeRabbit AI Review
+         uses: coderabbitai/ai-pr-reviewer@v1
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
