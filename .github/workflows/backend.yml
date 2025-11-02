@@ -26,6 +26,15 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: 'backend/pnpm-lock.yaml'
 
+      - name: 🔎 Debug PATH and pnpm location
+        run: |
+          echo "Current PATH:"
+          echo $PATH
+          echo "pnpm version check:"
+          pnpm -v || echo "pnpm command failed to run"
+          echo "Search for pnpm executable:"
+          find /opt/hostedtoolcache/node -name pnpm -type f
+
       - name: Install dependencies
         run: cd backend && pnpm install
 
