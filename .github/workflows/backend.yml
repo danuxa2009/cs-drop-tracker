@@ -23,3 +23,8 @@ jobs:
         with:
           version: 8 
           run_install: false
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
