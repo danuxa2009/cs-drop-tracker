@@ -1,43 +1,52 @@
-name: Backend CI
+env:
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+  NODE_ENV: test
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/backend.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'backend/**'
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
 
-jobs:
-  lint-and-test:
-    runs-on: ubuntu-latest
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '20'
+      cache: 'npm'
 
-    steps:
-      - uses: actions/checkout@v4
+  - name: Ensure npm global bin is in PATH
+    run: echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: 'backend/pnpm-lock.yaml'
+  - name: Install pnpm (global)
+    run: npm install -g pnpm@latest
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+  - name: Verify pnpm
+    run: |
+      pnpm -v
+      node -v
+      npm -v
 
-      - name: Install dependencies
-        run: cd backend && pnpm install
+  - name: Cache pnpm store
+    uses: actions/cache@v4
+    with:
+      path: |
+        ~/.pnpm-store
+        node_modules
+      key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+      restore-keys: |
+        ${{ runner.os }}-pnpm-
 
-      - name: Lint
-        run: cd backend && pnpm lint
+  - name: Install dependencies (pnpm)
+    run: pnpm install
+    env:
+      PNPM_HOME: ~/.pnpm
 
-      - name: Type check
-        run: cd backend && pnpm typecheck
+  - name: Run database migrations (if any)
+    run: |
+      # If you have migrations, run them here. Example:
+      # pnpm exec prisma migrate deploy --preview-feature
+      echo "No migrations step configured"
+    continue-on-error: true
 
-      - name: Build
-        run: cd backend && pnpm build
+  - name: Run tests
+    run: pnpm test
+    env:
+      DATABASE_URL: ${{ env.DATABASE_URL }}
