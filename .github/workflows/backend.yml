@@ -53,7 +53,7 @@ jobs:
           fetch-depth: 0 
       
       - name: Run CodeRabbit AI Review
-        uses: coderabbitai/ai-pr-reviewer@latest
+        uses: coderabbitai/ai-pr-reviewer@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
