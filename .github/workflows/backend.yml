@@ -4,56 +4,55 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
-      - '.github/workflows/backend.yml'
+      - "backend/**"
+      - ".github/workflows/backend.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
+      - "backend/**"
 
 jobs:
-      lint-and-test:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Checkout repository
-           uses: actions/checkout@v4
-   
-         - name: Setup pnpm
-           uses: pnpm/action-setup@v3
-           with:
-             version: 8 
-             run_install: false
-             
-         - name: Setup Node.js
-           uses: actions/setup-node@v4
-           with:
-             node-version: '20'
-   
-         - name: Install dependencies
-           run: cd backend && pnpm install
-   
-         - name: Lint
-           run: cd backend && pnpm lint
-   
-         - name: Type check
-           run: cd backend && pnpm typecheck
-  
-         - name: Build
-           run: cd backend && pnpm build
-  
-      coderabbit-review:
-         if: github.event_name == 'pull_request'
-         runs-on: ubuntu-latest
-         permissions:
-           contents: read
-           pull-requests: write
-         steps:
-           - name: Checkout repository (fetch all history)
-             uses: actions/checkout@v4
-             with:
-               fetch-depth: 0
-           - name: Run CodeRabbit AI Review
-    
-             uses: coderabbitai/ai-pr-reviewer@v1
-             env:
-               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: cd backend && pnpm install
+
+      - name: Lint
+        run: cd backend && pnpm lint
+
+      - name: Type check
+        run: cd backend && pnpm typecheck
+
+      - name: Build
+        run: cd backend && pnpm build
+
+  coderabbit-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository (fetch all history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run CodeRabbit AI Review
+        uses: coderabbitai/ai-pr-reviewer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
