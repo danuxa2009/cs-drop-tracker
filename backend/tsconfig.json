@@ -25,9 +25,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
 
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
+      "@/controllers/*": ["src/controllers/*"],
       "@/config/*": ["src/config/*"],
+      "@/db/*": ["src/db/*"],
       "@/routes/*": ["src/routes/*"],
       "@/services/*": ["src/services/*"],
       "@/repositories/*": ["src/repositories/*"],
