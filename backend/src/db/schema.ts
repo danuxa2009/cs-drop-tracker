@@ -8,7 +8,9 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  check,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 export const farmSessions = pgTable(
   'farm_session',
@@ -26,25 +28,49 @@ export const farmSessions = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('farm_session_date_from_date_to_idx').on(t.dateFrom, t.dateTo)]
+  (t) => [
+    uniqueIndex('farm_session_date_from_date_to_idx').on(t.dateFrom, t.dateTo),
+    check('farm_session_date_range_check', sql`${t.dateTo} >= ${t.dateFrom}`),
+    check(
+      'farm_session_non_negative_metrics_check',
+      sql`${t.accountsCount} >= 0 AND ${t.totalValue} >= 0 AND ${t.totalCases} >= 0 AND ${t.avgCasePrice} >= 0 AND ${t.avgDropPrice} >= 0`
+    ),
+  ]
 );
 
-export const sessionDrops = pgTable('session_drops', {
-  id: serial('id').primaryKey(),
-  farmSessionId: integer('farm_session_id')
-    .notNull()
-    .references(() => farmSessions.id, { onDelete: 'cascade' }),
-  caseName: text('case_name').notNull(),
-  amount: integer('amount').notNull(),
-  percentage: numeric('percentage', { precision: 5, scale: 2 }).notNull(),
-});
+export const sessionDrops = pgTable(
+  'session_drops',
+  {
+    id: serial('id').primaryKey(),
+    farmSessionId: integer('farm_session_id')
+      .notNull()
+      .references(() => farmSessions.id, { onDelete: 'cascade' }),
+    caseName: text('case_name').notNull(),
+    amount: integer('amount').notNull(),
+    percentage: numeric('percentage', { precision: 5, scale: 2 }).notNull(),
+  },
+  (t) => [
+    check('session_drops_amount_non_negative_check', sql`${t.amount} >= 0`),
+    check(
+      'session_drops_percentage_range_check',
+      sql`${t.percentage} >= 0 AND ${t.percentage} <= 100`
+    ),
+  ]
+);
 
-export const sessionSkins = pgTable('session_skins', {
-  id: serial('id').primaryKey(),
-  farmSessionId: integer('farm_session_id')
-    .notNull()
-    .references(() => farmSessions.id, { onDelete: 'cascade' }),
-  skinName: text('skin_name').notNull(),
-  amount: integer('amount').notNull(),
-  price: numeric('price', { precision: 10, scale: 2 }).notNull(),
-});
+export const sessionSkins = pgTable(
+  'session_skins',
+  {
+    id: serial('id').primaryKey(),
+    farmSessionId: integer('farm_session_id')
+      .notNull()
+      .references(() => farmSessions.id, { onDelete: 'cascade' }),
+    skinName: text('skin_name').notNull(),
+    amount: integer('amount').notNull(),
+    price: numeric('price', { precision: 10, scale: 2 }).notNull(),
+  },
+  (t) => [
+    check('session_skins_amount_non_negative_check', sql`${t.amount} >= 0`),
+    check('session_skins_price_non_negative_check', sql`${t.price} >= 0`),
+  ]
+);

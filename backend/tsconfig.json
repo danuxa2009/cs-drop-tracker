@@ -27,6 +27,7 @@
 
     "baseUrl": ".",
     "paths": {
+      "@/validation/*": ["src/validation/*"],
       "@/controllers/*": ["src/controllers/*"],
       "@/config/*": ["src/config/*"],
       "@/db/*": ["src/db/*"],

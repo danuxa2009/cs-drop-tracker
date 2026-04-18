@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
 
-import { CreateSessionDTO } from '@/types/sessions.types.js';
+import { CreateSessionDTO, UpdateSessionDTO } from '@/types/sessions.types.js';
 import { db } from '@/db/client.js';
 import { farmSessions, sessionDrops, sessionSkins } from '@/db/schema.js';
 
@@ -85,4 +85,27 @@ export async function getSessionById(id: number) {
 export async function deleteSession(id: number) {
   const [deletedSession] = await db.delete(farmSessions).where(eq(farmSessions.id, id)).returning();
   return deletedSession ?? null;
+}
+
+export async function updateSession(id: number, data: UpdateSessionDTO) {
+  const values = {
+    accountsCount: data.accounts_count,
+    totalValue: data.total_value != null ? String(data.total_value) : undefined,
+    totalCases: data.total_cases,
+    avgCasePrice: data.avg_case_price != null ? String(data.avg_case_price) : undefined,
+    avgDropPrice: data.avg_drop_price != null ? String(data.avg_drop_price) : undefined,
+    isFinal: data.is_final,
+    notes: data.notes,
+    updatedAt: new Date(),
+  };
+
+  const set = Object.fromEntries(Object.entries(values).filter(([_, v]) => v !== undefined));
+
+  const [updated] = await db
+    .update(farmSessions)
+    .set(set)
+    .where(eq(farmSessions.id, id))
+    .returning();
+
+  return updated ?? null;
 }

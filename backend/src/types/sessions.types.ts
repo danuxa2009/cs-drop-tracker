@@ -23,3 +23,13 @@ export type CreateSessionDTO = {
   drops: SessionDrop[];
   skins?: SessionSkin[];
 };
+
+export type UpdateSessionDTO = {
+  accounts_count?: number;
+  total_value?: number;
+  total_cases?: number;
+  avg_case_price?: number;
+  avg_drop_price?: number;
+  is_final?: boolean;
+  notes?: string;
+};
