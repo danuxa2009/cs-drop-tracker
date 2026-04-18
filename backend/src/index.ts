@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import sessionsRouter from './routes/sessions.route.js';
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
+app.use('/api/sessions', sessionsRouter);
 
 app.get('/health', (req: Request, res: Response) => {
   res.json({
