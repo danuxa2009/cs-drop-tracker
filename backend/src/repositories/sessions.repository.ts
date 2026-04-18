@@ -37,16 +37,18 @@ export async function upsertSession(data: CreateSessionDTO) {
     await tx.delete(sessionDrops).where(eq(sessionDrops.farmSessionId, session.id));
     await tx.delete(sessionSkins).where(eq(sessionSkins.farmSessionId, session.id));
 
-    await tx.insert(sessionDrops).values(
-      data.drops.map((drop) => ({
-        farmSessionId: session.id,
-        caseName: drop.case_name,
-        amount: drop.amount,
-        percentage: String(drop.percentage),
-      }))
-    );
+    if (data.drops && data.drops.length > 0) {
+      await tx.insert(sessionDrops).values(
+        data.drops.map((drop) => ({
+          farmSessionId: session.id,
+          caseName: drop.case_name,
+          amount: drop.amount,
+          percentage: String(drop.percentage),
+        }))
+      );
+    }
 
-    if (data.skins && data.skins.length > 0) {
+    if (data.skins && data?.skins.length > 0) {
       await tx.insert(sessionSkins).values(
         data.skins.map((skin) => ({
           farmSessionId: session.id,
