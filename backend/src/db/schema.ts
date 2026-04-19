@@ -13,7 +13,7 @@ import {
 import { sql } from 'drizzle-orm';
 
 export const farmSessions = pgTable(
-  'farm_session',
+  'farmSessions',
   {
     id: serial('id').primaryKey(),
     dateFrom: date('date_from').notNull(),
