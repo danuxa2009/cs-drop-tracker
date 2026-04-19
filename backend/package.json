@@ -11,7 +11,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "get:session": "tsx src/bot/getSession.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
@@ -40,6 +41,7 @@
     "express": "^5.1.0",
     "node-cron": "^4.2.1",
     "pg": "^8.16.3",
+    "telegram": "^2.26.22",
     "zod": "^4.3.6"
   }
 }
