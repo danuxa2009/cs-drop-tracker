@@ -6,15 +6,24 @@ import { upsertSession } from '@/repositories/sessions.repository.js';
 import { askCode } from '@/utils/askCode.js';
 import { formatDate } from '@/utils/formatDate.js';
 
-const client = new TelegramClient(
-  new StringSession(process.env.TG_SESSION ?? ''),
-  Number(process.env.TG_API_ID),
-  process.env.TG_API_HASH!,
-  { connectionRetries: 5 }
-);
+let client: TelegramClient | null = null;
+
+function initUserbotClient(): TelegramClient {
+  if (!client) {
+    client = new TelegramClient(
+      new StringSession(process.env.TG_SESSION ?? ''),
+      Number(process.env.TG_API_ID),
+      process.env.TG_API_HASH!,
+      { connectionRetries: 5 }
+    );
+  }
+  return client;
+}
 
 export async function startUserbot() {
-  await client.start({
+  const userbotClient = initUserbotClient();
+
+  await userbotClient.start({
     phoneNumber: () => Promise.resolve(process.env.TG_PHONE!),
     password: () => Promise.resolve(''),
     phoneCode: () => askCode(),
@@ -23,22 +32,27 @@ export async function startUserbot() {
 
   console.log('🤖 Userbot запущен');
 
-  client.addEventHandler(async (event) => {
-    const text = event.message?.text ?? '';
-    if (!text.includes('FSM PANEL | DROP REPORT')) return;
+  userbotClient.addEventHandler(async (event) => {
+    try {
+      const text = event.message?.text ?? '';
+      if (!text.includes('FSM PANEL | DROP REPORT')) return;
 
-    const data = parseReport(text);
-    if (!data) return;
+      const data = parseReport(text);
+      if (!data) return;
 
-    await upsertSession(data);
-    console.log('✅ Сохранено:', data.date_from, '—', data.date_to);
-    await client.sendMessage(event.message.chatId!, {
-      message:
-        `✅ Сессия сохранена!\n` +
-        `📅 ${formatDate(data.date_from)} — ${formatDate(data.date_to)}\n` +
-        `💰 Total: ${data.total_value}$\n` +
-        `📦 Cases: ${data.total_cases}\n` +
-        `👤 Accounts: ${data.accounts_count}`,
-    });
+      await upsertSession(data);
+      console.log('✅ Сохранено:', data.date_from, '—', data.date_to);
+
+      await event.message.respond({
+        message:
+          `✅ Сессия сохранена!\n` +
+          `📅 ${formatDate(data.date_from)} — ${formatDate(data.date_to)}\n` +
+          `💰 Total: ${data.total_value}$\n` +
+          `📦 Cases: ${data.total_cases}\n` +
+          `👤 Accounts: ${data.accounts_count}`,
+      });
+    } catch (error) {
+      console.error('Failed to process Telegram drop report', error);
+    }
   }, new NewMessage({}));
 }
