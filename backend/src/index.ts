@@ -21,7 +21,13 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  const { startUserbot } = await import('./bot/userbot.js');
+
+  void startUserbot().catch((error) => {
+    console.error('Failed to start Telegram userbot', error);
+  });
 });
