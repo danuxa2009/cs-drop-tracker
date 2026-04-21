@@ -4,7 +4,6 @@ import { NewMessage } from 'telegram/events/index.js';
 import { parseReport } from './parser.js';
 import { upsertSession } from '@/repositories/sessions.repository.js';
 import { askCode } from '@/utils/askCode.js';
-import { formatDate } from '@/utils/formatDate.js';
 
 let client: TelegramClient | null = null;
 
@@ -34,8 +33,10 @@ export async function startUserbot() {
 
   userbotClient.addEventHandler(async (event) => {
     try {
+      const allowedChatId = process.env.TG_ALLOWED_CHAT_ID;
       const text = event.message?.text ?? '';
       if (!text.includes('FSM PANEL | DROP REPORT')) return;
+      if (event.message?.chatId?.toString() !== allowedChatId) return;
 
       const data = parseReport(text);
       if (!data) return;
@@ -44,12 +45,7 @@ export async function startUserbot() {
       console.log('✅ Сохранено:', data.date_from, '—', data.date_to);
 
       await event.message.respond({
-        message:
-          `✅ Сессия сохранена!\n` +
-          `📅 ${formatDate(data.date_from)} — ${formatDate(data.date_to)}\n` +
-          `💰 Total: ${data.total_value}$\n` +
-          `📦 Cases: ${data.total_cases}\n` +
-          `👤 Accounts: ${data.accounts_count}`,
+        message: `✅ Сессия сохранена!`,
       });
     } catch (error) {
       console.error('Failed to process Telegram drop report', error);
