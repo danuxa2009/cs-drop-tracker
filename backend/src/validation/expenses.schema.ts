@@ -10,13 +10,8 @@ export const createExpenseSchema = z.object({
   description: z.string().min(1),
 });
 
-export const updateExpenseSchema = z.object({
-  amount: z.number().nonnegative().optional(),
-  category: expenseCategorySchema.optional(),
-  date: z.string().regex(DATE_REGEX).optional(),
-  description: z.string().min(1).optional(),
-});
-
-export const deleteExpenseSchema = z.object({
-  id: z.number(),
-});
+export const updateExpenseSchema = createExpenseSchema
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided',
+  });
