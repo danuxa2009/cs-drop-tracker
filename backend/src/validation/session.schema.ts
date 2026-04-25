@@ -1,3 +1,4 @@
+import { DATE_REGEX } from '@/utils/constants.js';
 import { z } from 'zod';
 
 const sessionDropSchema = z.object({
@@ -13,8 +14,8 @@ const sessionSkinSchema = z.object({
 });
 
 export const createSessionSchema = z.object({
-  date_from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  date_to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  date_from: z.string().regex(DATE_REGEX),
+  date_to: z.string().regex(DATE_REGEX),
   accounts_count: z.number().int().positive(),
   total_value: z.number().nonnegative(),
   total_cases: z.number().int().positive(),
