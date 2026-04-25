@@ -74,3 +74,16 @@ export const sessionSkins = pgTable(
     check('session_skins_price_non_negative_check', sql`${t.price} >= 0`),
   ]
 );
+
+export const expenses = pgTable(
+  'expenses',
+  {
+    id: serial('id').primaryKey(),
+    description: text('description').notNull(),
+    amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
+    category: text('category').notNull(),
+    date: date('date').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [check('expenses_amount_non_negative_check', sql`${t.amount} >= 0`)]
+);
