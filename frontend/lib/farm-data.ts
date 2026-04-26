@@ -242,7 +242,6 @@ export const initialExpenses: Expense[] = [
 ];
 
 export const totalEarned = sessions.reduce((sum, s) => sum + s.totalValue, 0);
-export const totalSessions = sessions.length;
 export const avgPerWeek = weeklyEarnings.reduce((sum, w) => sum + w.earned, 0) / weeklyEarnings.length;
 export const totalExpenses = initialExpenses.reduce((sum, e) => sum + e.amount, 0);
 export const netProfit = totalEarned - totalExpenses;
