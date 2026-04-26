@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { cookies } from "next/headers";
 
 const geistMono = Geist_Mono({ subsets: ["latin"] });
 
@@ -31,16 +32,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const sidebarState = cookieStore.get("sidebar_state")?.value;
+  const defaultOpen = sidebarState !== "false";
+
   return (
     <html lang="en" className="dark bg-background">
       <body className={`${geistMono.className} font-sans antialiased`}>
         <TooltipProvider>
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
             <SidebarInset className="bg-background">{children}</SidebarInset>
           </SidebarProvider>

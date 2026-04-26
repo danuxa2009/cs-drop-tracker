@@ -1,7 +1,7 @@
-import { ArrowDownRight, ArrowUpRight, CalendarRange, DollarSign, Timer, TrendingUp } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, CalendarRange, DollarSign, TrendingUp } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { avgPerWeek, netProfit, totalEarned, totalSessions } from "@/lib/farm-data";
+import { avgPerWeek, netProfit, totalEarned } from "@/lib/farm-data";
 
 type Stat = {
   title: string;
@@ -30,14 +30,6 @@ const stats: Stat[] = [
     icon: CalendarRange,
   },
   {
-    title: "Total sessions",
-    value: totalSessions.toLocaleString("en-US"),
-    delta: "-2.0%",
-    trend: "down",
-    hint: "vs. previous period",
-    icon: Timer,
-  },
-  {
     title: "Net profit",
     value: `$${netProfit.toLocaleString("en-US", { maximumFractionDigits: 2 })}`,
     delta: netProfit >= 0 ? "+8.6%" : "-3.2%",
@@ -49,7 +41,7 @@ const stats: Stat[] = [
 
 export function StatsCards() {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 lg:grid-cols-3">
       {stats.map((stat) => {
         const Icon = stat.icon;
         const TrendIcon = stat.trend === "up" ? ArrowUpRight : ArrowDownRight;
