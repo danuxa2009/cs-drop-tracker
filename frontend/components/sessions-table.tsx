@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { sessions } from "@/lib/farm-data";
@@ -14,25 +13,10 @@ function formatRange(start: string, end: string) {
   return `${formatDate(start)} – ${formatDate(end)}`;
 }
 
-function FinalBadge({ isFinal }: { isFinal: boolean }) {
-  if (isFinal) {
-    return (
-      <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-        <span className="mr-1.5 size-1.5 rounded-full bg-primary" />
-        Final
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant="outline" className="border-foreground/20 bg-accent text-foreground">
-      <span className="mr-1.5 size-1.5 animate-pulse rounded-full bg-foreground/70" />
-      Pending
-    </Badge>
-  );
-}
-
 export function SessionsTable() {
   const recent = sessions.slice(0, 6);
+
+  console.log("Rendering SessionsTable with recent sessions:", recent);
 
   return (
     <Card className="border-border/60 bg-card">
@@ -56,9 +40,6 @@ export function SessionsTable() {
               <TableHead className="text-right text-xs uppercase tracking-wider text-muted-foreground">
                 Total value
               </TableHead>
-              <TableHead className="pr-6 text-xs uppercase tracking-wider text-muted-foreground">
-                Status
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -69,9 +50,6 @@ export function SessionsTable() {
                 <TableCell className="text-right font-mono tabular-nums">{s.accounts}</TableCell>
                 <TableCell className="text-right font-mono font-semibold tabular-nums">
                   ${s.totalValue.toFixed(2)}
-                </TableCell>
-                <TableCell className="pr-6">
-                  <FinalBadge isFinal={s.isFinal} />
                 </TableCell>
               </TableRow>
             ))}

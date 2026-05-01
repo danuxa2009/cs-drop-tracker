@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@tanstack/react-query':
+    specifier: ^5.100.6
+    version: 5.100.6(react@19.2.4)
   '@vercel/analytics':
     specifier: ^2.0.1
     version: 2.0.1(next@16.2.4)(react@19.2.4)
@@ -2570,6 +2573,19 @@ packages:
       postcss: 8.5.10
       tailwindcss: 4.2.4
     dev: true
+
+  /@tanstack/query-core@5.100.6:
+    resolution: {integrity: sha512-Os2CPUr98to98RYm+D4qGqGkiffn7MGSyl2547a4MljVkHE30AMJRqTiyCqBfMwzAx/I91vCkAxp5tHSla6Twg==}
+    dev: false
+
+  /@tanstack/react-query@5.100.6(react@19.2.4):
+    resolution: {integrity: sha512-uVSrps0PV16Cxmcn2rvL+dUhwTpTUtiRW347AEeYxMZXO2pZe9ja7E24PAMGoQ5u2g89DD8u4QhOviBk+RN8RA==}
+    peerDependencies:
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-core': 5.100.6
+      react: 19.2.4
+    dev: false
 
   /@ts-morph/common@0.27.0:
     resolution: {integrity: sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ==}

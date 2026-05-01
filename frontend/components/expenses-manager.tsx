@@ -22,14 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { expenseCategories, initialExpenses, type Expense, type ExpenseCategory } from "@/lib/farm-data";
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { formatDate } from "@/lib/utils";
 
 const categoryClass: Record<ExpenseCategory, string> = {
   accounts: "border-primary/30 bg-primary/10 text-primary",
@@ -210,7 +203,7 @@ export function ExpensesManager() {
                     {e.category}
                   </Badge>
                 </TableCell>
-                <TableCell className="max-w-[28rem] truncate text-sm">{e.description}</TableCell>
+                <TableCell className="max-w-md truncate text-sm">{e.description}</TableCell>
                 <TableCell className="pr-6 text-right font-mono font-semibold tabular-nums">
                   ${e.amount.toFixed(2)}
                 </TableCell>
