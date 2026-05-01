@@ -1,6 +1,8 @@
+"use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { sessions } from "@/lib/farm-data";
+import { useSessionsList } from "@/lib/api/queries";
+import { Skeleton } from "./ui/skeleton";
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-US", {
@@ -10,13 +12,15 @@ function formatDate(d: string) {
 }
 
 function formatRange(start: string, end: string) {
-  return `${formatDate(start)} – ${formatDate(end)}`;
+  return `${formatDate(start)} - ${formatDate(end)}`;
 }
 
 export function SessionsTable() {
-  const recent = sessions.slice(0, 6);
+  const { data: sessions, isLoading } = useSessionsList();
 
-  console.log("Rendering SessionsTable with recent sessions:", recent);
+  if (isLoading) {
+    return <Skeleton className="h-62 w-full border-border/60" />;
+  }
 
   return (
     <Card className="border-border/60 bg-card">
@@ -43,13 +47,13 @@ export function SessionsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {recent.map((s) => (
-              <TableRow key={s.id} className="border-border/60">
-                <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{s.id}</TableCell>
-                <TableCell className="text-sm">{formatRange(s.startDate, s.endDate)}</TableCell>
-                <TableCell className="text-right font-mono tabular-nums">{s.accounts}</TableCell>
+            {sessions?.map((session, index) => (
+              <TableRow key={session.id} className="border-border/60">
+                <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{index}</TableCell>
+                <TableCell className="text-sm">{formatRange(session.dateFrom, session.dateTo)}</TableCell>
+                <TableCell className="text-right font-mono tabular-nums">{session.accountsCount}</TableCell>
                 <TableCell className="text-right font-mono font-semibold tabular-nums">
-                  ${s.totalValue.toFixed(2)}
+                  ${session.totalValue}
                 </TableCell>
               </TableRow>
             ))}

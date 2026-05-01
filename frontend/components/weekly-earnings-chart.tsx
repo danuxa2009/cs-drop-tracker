@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-import { weeklyEarnings } from "@/lib/farm-data";
+import { useSessionsList } from "@/lib/api/queries";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Skeleton } from "./ui/skeleton";
 
 const chartConfig = {
   earned: {
@@ -13,7 +14,20 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function WeeklyEarningsChart() {
-  const total = weeklyEarnings.reduce((s, w) => s + w.earned, 0);
+  const { data: sessions, isLoading } = useSessionsList();
+
+  if (isLoading) {
+    return <Skeleton className="h-70 w-full border-border/60" />;
+  }
+
+  const weeklyEarnings = sessions?.map((session, index) => {
+    return {
+      week: `Week ${index + 1}`,
+      earned: Number(session.totalValue),
+    };
+  });
+
+  const total = sessions?.reduce((sum, s) => sum + Number(s.totalValue), 0) ?? 0;
 
   return (
     <Card className="border-border/60 bg-card">
@@ -30,7 +44,7 @@ export function WeeklyEarningsChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[280px] w-full">
+        <ChartContainer config={chartConfig} className="h-70 w-full">
           <BarChart data={weeklyEarnings} margin={{ left: 8, right: 8, top: 8, bottom: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" />
             <XAxis
@@ -56,7 +70,7 @@ export function WeeklyEarningsChart() {
                   indicator="dot"
                   formatter={(value) => [
                     `$${Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 })}`,
-                    "Earned",
+                    " Earned",
                   ]}
                 />
               }

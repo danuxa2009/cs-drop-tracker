@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { useState } from "react";
+import { Plus, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +21,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { expenseCategories, initialExpenses, type Expense, type ExpenseCategory } from "@/lib/farm-data";
+import { Skeleton } from "./ui/skeleton";
+import { expenseCategories } from "@/lib/farm-data";
 import { formatDate } from "@/lib/utils";
+import { useExpensesList, useCreateExpense } from "@/lib/api/queries";
+import type { ExpenseCategory } from "@/lib/api/types";
 
 const categoryClass: Record<ExpenseCategory, string> = {
   accounts: "border-primary/30 bg-primary/10 text-primary",
@@ -32,52 +35,44 @@ const categoryClass: Record<ExpenseCategory, string> = {
   other: "border-muted-foreground/30 bg-muted text-muted-foreground",
 };
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
+const getInitialForm = () => ({
+  amount: "",
+  category: "accounts" as ExpenseCategory,
+  description: "",
+  date: new Date().toISOString().slice(0, 10),
+});
 
 export function ExpensesManager() {
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
+  const { data: expenses = [], isLoading, error } = useExpensesList();
+  const createExpense = useCreateExpense();
   const [open, setOpen] = useState(false);
+  const [form, setForm] = useState(getInitialForm);
 
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState<ExpenseCategory>("accounts");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(todayISO());
-
-  const total = useMemo(() => expenses.reduce((sum, e) => sum + e.amount, 0), [expenses]);
-
-  function resetForm() {
-    setAmount("");
-    setCategory("accounts");
-    setDescription("");
-    setDate(todayISO());
-  }
+  const set =
+    (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) =>
+      setForm((prev) => ({ ...prev, [field]: typeof e === "string" ? e : e.target.value }));
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = Number.parseFloat(amount);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      toast.error("Enter a valid amount greater than 0");
-      return;
-    }
-    if (!description.trim()) {
-      toast.error("Description is required");
-      return;
-    }
+    const amount = Number.parseFloat(form.amount);
 
-    const next: Expense = {
-      id: `E-${String(expenses.length + 1).padStart(3, "0")}`,
-      amount: parsed,
-      category,
-      description: description.trim(),
-      date,
-    };
-    setExpenses((prev) => [next, ...prev]);
-    toast.success(`Added $${parsed.toLocaleString("en-US", { maximumFractionDigits: 2 })} to ${category}`);
-    resetForm();
-    setOpen(false);
+    if (!Number.isFinite(amount) || amount <= 0) return toast.error("Enter a valid amount greater than 0");
+    if (!form.description.trim()) return toast.error("Description is required");
+
+    createExpense.mutate(
+      { amount, category: form.category, description: form.description.trim(), date: form.date },
+      {
+        onSuccess: () => {
+          toast.success(`Added $${amount.toFixed(2)} to ${form.category}`);
+          setForm(getInitialForm());
+          setOpen(false);
+        },
+        onError: (err: Error) => toast.error(err.message || "Failed to add expense"),
+      },
+    );
   }
+
+  const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
   return (
     <Card className="border-border/60 bg-card">
@@ -85,10 +80,7 @@ export function ExpensesManager() {
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold">Expenses</CardTitle>
           <CardDescription>
-            Total spend:{" "}
-            <span className="font-mono font-semibold text-foreground">
-              ${total.toLocaleString("en-US", { maximumFractionDigits: 2 })}
-            </span>{" "}
+            Total spend: <span className="font-mono font-semibold text-foreground">${total.toFixed(2)}</span>{" "}
             across {expenses.length} entries
           </CardDescription>
         </div>
@@ -109,25 +101,20 @@ export function ExpensesManager() {
 
               <FieldGroup className="py-4">
                 <Field>
-                  <FieldLabel htmlFor="amount">Amount (USD)</FieldLabel>
+                  <FieldLabel>Amount (USD)</FieldLabel>
                   <Input
-                    id="amount"
-                    type="number"
                     inputMode="decimal"
-                    min="0"
-                    step="0.01"
                     placeholder="0.00"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    value={form.amount}
+                    onChange={set("amount")}
                     required
                   />
                 </Field>
-
                 <Field>
-                  <FieldLabel htmlFor="category">Category</FieldLabel>
-                  <Select value={category} onValueChange={(v) => setCategory(v as ExpenseCategory)}>
-                    <SelectTrigger id="category">
-                      <SelectValue placeholder="Select a category" />
+                  <FieldLabel>Category</FieldLabel>
+                  <Select value={form.category} onValueChange={set("category") as (v: string) => void}>
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {expenseCategories.map((c) => (
@@ -138,28 +125,23 @@ export function ExpensesManager() {
                     </SelectContent>
                   </Select>
                 </Field>
-
                 <Field>
-                  <FieldLabel htmlFor="description">Description</FieldLabel>
+                  <FieldLabel>Description</FieldLabel>
                   <Textarea
-                    id="description"
+                    className="resize-none"
+                    data-gramm="false"
+                    data-gramm_editor="false"
+                    data-enable-grammarly="false"
                     placeholder="What was this for?"
                     rows={2}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={form.description}
+                    onChange={set("description")}
                     required
                   />
                 </Field>
-
                 <Field>
-                  <FieldLabel htmlFor="date">Date</FieldLabel>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
+                  <FieldLabel>Date</FieldLabel>
+                  <Input type="date" value={form.date} onChange={set("date")} required />
                 </Field>
               </FieldGroup>
 
@@ -167,7 +149,10 @@ export function ExpensesManager() {
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">Save expense</Button>
+                <Button type="submit" disabled={createExpense.isPending}>
+                  {createExpense.isPending && <Loader2 className="size-4 animate-spin" />}
+                  Save expense
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -175,40 +160,61 @@ export function ExpensesManager() {
       </CardHeader>
 
       <CardContent className="px-0 pb-0">
+        {error && <p className="px-6 py-4 text-sm text-red-400">Failed to load expenses</p>}
+        {expenses.length === 0 && !isLoading && !error && (
+          <p className="py-12 text-center text-sm text-muted-foreground">No expenses yet</p>
+        )}
         <Table>
           <TableHeader>
             <TableRow className="border-border/60 hover:bg-transparent">
-              <TableHead className="pl-6 text-xs uppercase tracking-wider text-muted-foreground">
-                ID
-              </TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">Date</TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">
-                Category
-              </TableHead>
-              <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">
-                Description
-              </TableHead>
-              <TableHead className="pr-6 text-right text-xs uppercase tracking-wider text-muted-foreground">
-                Amount
-              </TableHead>
+              {["#", "Date", "Category", "Description", "Amount"].map((header) => (
+                <TableHead
+                  key={header}
+                  className="text-xs uppercase tracking-wider text-muted-foreground first:pl-6 last:pr-6 last:text-right"
+                >
+                  {header}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {expenses.map((e) => (
-              <TableRow key={e.id} className="border-border/60">
-                <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{e.id}</TableCell>
-                <TableCell className="text-sm">{formatDate(e.date)}</TableCell>
-                <TableCell>
-                  <Badge variant="outline" className={`capitalize ${categoryClass[e.category]}`}>
-                    {e.category}
-                  </Badge>
-                </TableCell>
-                <TableCell className="max-w-md truncate text-sm">{e.description}</TableCell>
-                <TableCell className="pr-6 text-right font-mono font-semibold tabular-nums">
-                  ${e.amount.toFixed(2)}
-                </TableCell>
-              </TableRow>
-            ))}
+            {isLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <TableRow key={i} className="border-border/60">
+                    <TableCell className="pl-6">
+                      <Skeleton className="h-4 w-8" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-20 rounded-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-48" />
+                    </TableCell>
+                    <TableCell className="pr-6 flex justify-end">
+                      <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              : expenses.map((expense, index) => (
+                  <TableRow key={expense.id} className="border-border/60">
+                    <TableCell className="pl-6 font-mono text-xs text-muted-foreground">
+                      {index + 1}
+                    </TableCell>
+                    <TableCell className="text-sm">{formatDate(expense.date)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`capitalize ${categoryClass[expense.category]}`}>
+                        {expense.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-md truncate text-sm">{expense.description}</TableCell>
+                    <TableCell className="pr-6 text-right font-mono font-semibold tabular-nums">
+                      ${Number(expense.amount).toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </CardContent>
