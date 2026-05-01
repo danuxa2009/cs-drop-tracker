@@ -1,6 +1,7 @@
 import { Geist_Mono } from "next/font/google";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -59,6 +60,7 @@ export default async function RootLayout({
             }}
           />
           {process.env.NODE_ENV === "production" && <Analytics />}
+          {process.env.NODE_ENV === "production" && <SpeedInsights />}
         </QueryProvider>
       </body>
     </html>
