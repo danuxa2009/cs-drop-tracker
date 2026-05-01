@@ -49,7 +49,7 @@ export function SessionsTable() {
           <TableBody>
             {sessions?.map((session, index) => (
               <TableRow key={session.id} className="border-border/60">
-                <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{index}</TableCell>
+                <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{index + 1}</TableCell>
                 <TableCell className="text-sm">{formatRange(session.dateFrom, session.dateTo)}</TableCell>
                 <TableCell className="text-right font-mono tabular-nums">{session.accountsCount}</TableCell>
                 <TableCell className="text-right font-mono font-semibold tabular-nums">

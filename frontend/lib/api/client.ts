@@ -7,23 +7,20 @@ import {
   UpdateSessionInput,
 } from "./types";
 
-const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api`;
+const API_BASE = "/api/proxy";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const { headers: customHeaders, ...restOptions } = options ?? {};
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
-  if (process.env.NEXT_PUBLIC_API_KEY) {
-    headers["x-api-key"] = process.env.NEXT_PUBLIC_API_KEY;
-  }
-
   const res = await fetch(`${API_BASE}${path}`, {
     headers: {
       ...headers,
-      ...options?.headers,
+      ...(customHeaders as Record<string, string> | undefined),
     },
-    ...options,
+    ...restOptions,
   });
 
   if (!res.ok) {
