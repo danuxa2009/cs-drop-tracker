@@ -3,7 +3,8 @@ import { SessionsTable } from "@/components/sessions-table";
 import { StatsCards } from "@/components/stats-cards";
 import { WeeklyEarningsChart } from "@/components/weekly-earnings-chart";
 
-export default function DashboardPage() {
+
+export default  function DashboardPage() {
   return (
     <>
       <PageHeader title="Dashboard" description="Overview of your farming operation" />
