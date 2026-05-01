@@ -86,7 +86,16 @@ export function SessionsList() {
                 <TableRow
                   key={session.id}
                   onClick={() => setSelected(session.id)}
-                  className="cursor-pointer border-border/60 transition-colors hover:bg-accent/40"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelected(session.id);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Open session from ${formatRange(session.dateFrom, session.dateTo)} with ${session.accountsCount} accounts`}
+                  className="cursor-pointer border-border/60 transition-colors hover:bg-accent/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{index + 1}</TableCell>
                   <TableCell className="text-sm">{formatRange(session.dateFrom, session.dateTo)}</TableCell>
@@ -106,7 +115,7 @@ export function SessionsList() {
 
       <Sheet open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl!">
-          {selected ? <SessionDetail id={selected} /> : null}
+          {selected !== null ? <SessionDetail id={selected} /> : null}
         </SheetContent>
       </Sheet>
     </>
