@@ -22,10 +22,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "./ui/skeleton";
-import { expenseCategories } from "@/lib/farm-data";
+
 import { formatDate } from "@/lib/utils";
 import { useExpensesList, useCreateExpense } from "@/lib/api/queries";
 import type { ExpenseCategory } from "@/lib/api/types";
+
+export const expenseCategories: { value: ExpenseCategory; label: string }[] = [
+  { value: "accounts", label: "Accounts" },
+  { value: "proxy", label: "Proxy" },
+  { value: "subscription", label: "Subscription" },
+  { value: "hardware", label: "Hardware" },
+  { value: "other", label: "Other" },
+];
 
 const categoryClass: Record<ExpenseCategory, string> = {
   accounts: "border-primary/30 bg-primary/10 text-primary",
