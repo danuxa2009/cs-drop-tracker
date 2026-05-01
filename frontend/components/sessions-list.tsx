@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { useSession, useSessionsList } from "@/lib/api/queries";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetDescription, SheetHeader } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -115,6 +115,10 @@ export function SessionsList() {
 
       <Sheet open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-2xl!">
+          <SheetHeader className="pb-0!">
+            <SheetTitle>Session Details</SheetTitle>
+            <SheetDescription>View drops and skins from this farming session</SheetDescription>
+          </SheetHeader>
           {selected !== null ? <SessionDetail id={selected} /> : null}
         </SheetContent>
       </Sheet>
@@ -138,7 +142,7 @@ function SessionDetail({ id }: { id: number }) {
 
   return (
     <>
-      <SheetHeader>
+      <SheetHeader className="pt-0!">
         <SheetDescription>
           {formatRange(session.dateFrom, session.dateTo)} · {session.accountsCount} accounts ·{" "}
           <span className="font-mono font-semibold text-foreground">
