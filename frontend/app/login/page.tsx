@@ -32,7 +32,7 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        router.push("/");
+        router.back();
         router.refresh();
       } else {
         setError(true);
@@ -45,8 +45,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-background">
-      <Card className="w-80 border-border/60">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
+      <Card className="w-full max-w-xs border-border/60">
         <CardHeader>
           <CardTitle className="text-base">Admin login</CardTitle>
           <CardDescription>Enter your password to access admin features</CardDescription>
@@ -65,7 +65,7 @@ export default function LoginPage() {
             {error && <p className="text-xs text-destructive">Incorrect password</p>}
           </div>
           <div className="flex gap-2">
-            <Button className="flex-1" variant="outline" onClick={() => router.push("/")}>
+            <Button className="flex-1" variant="outline" onClick={() => router.back()}>
               <ChevronLeft />
               Back
             </Button>

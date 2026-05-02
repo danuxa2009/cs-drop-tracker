@@ -19,6 +19,13 @@ export const metadata: Metadata = {
   description: "Track your CS2 farming profits, sessions, and weekly earnings.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
