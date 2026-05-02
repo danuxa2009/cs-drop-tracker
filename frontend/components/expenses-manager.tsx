@@ -26,6 +26,7 @@ import { Skeleton } from "./ui/skeleton";
 import { formatDate } from "@/lib/utils";
 import { useExpensesList, useCreateExpense } from "@/lib/api/queries";
 import type { ExpenseCategory } from "@/lib/api/types";
+import { useAuth } from "@/providers/AuthProvider";
 
 export const expenseCategories: { value: ExpenseCategory; label: string }[] = [
   { value: "accounts", label: "Accounts" },
@@ -51,6 +52,7 @@ const getInitialForm = () => ({
 });
 
 export function ExpensesManager() {
+  const { isGuest } = useAuth();
   const { data: expenses = [], isLoading, error } = useExpensesList();
   const createExpense = useCreateExpense();
   const [open, setOpen] = useState(false);
@@ -93,78 +95,80 @@ export function ExpensesManager() {
           </CardDescription>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="gap-1.5">
-              <Plus className="size-4" />
-              Add expense
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>Add expense</DialogTitle>
-                <DialogDescription>Log a new operational cost for your farm.</DialogDescription>
-              </DialogHeader>
+        {!isGuest && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-1.5">
+                <Plus className="size-4" />
+                Add expense
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <form onSubmit={handleSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Add expense</DialogTitle>
+                  <DialogDescription>Log a new operational cost for your farm.</DialogDescription>
+                </DialogHeader>
 
-              <FieldGroup className="py-4">
-                <Field>
-                  <FieldLabel>Amount (USD)</FieldLabel>
-                  <Input
-                    inputMode="decimal"
-                    placeholder="0.00"
-                    value={form.amount}
-                    onChange={set("amount")}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Category</FieldLabel>
-                  <Select value={form.category} onValueChange={set("category") as (v: string) => void}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {expenseCategories.map((c) => (
-                        <SelectItem key={c.value} value={c.value}>
-                          {c.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Field>
-                  <FieldLabel>Description</FieldLabel>
-                  <Textarea
-                    className="resize-none"
-                    data-gramm="false"
-                    data-gramm_editor="false"
-                    data-enable-grammarly="false"
-                    placeholder="What was this for?"
-                    rows={2}
-                    value={form.description}
-                    onChange={set("description")}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Date</FieldLabel>
-                  <Input type="date" value={form.date} onChange={set("date")} required />
-                </Field>
-              </FieldGroup>
+                <FieldGroup className="py-4">
+                  <Field>
+                    <FieldLabel>Amount (USD)</FieldLabel>
+                    <Input
+                      inputMode="decimal"
+                      placeholder="0.00"
+                      value={form.amount}
+                      onChange={set("amount")}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Category</FieldLabel>
+                    <Select value={form.category} onValueChange={set("category") as (v: string) => void}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {expenseCategories.map((c) => (
+                          <SelectItem key={c.value} value={c.value}>
+                            {c.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
+                    <FieldLabel>Description</FieldLabel>
+                    <Textarea
+                      className="resize-none"
+                      data-gramm="false"
+                      data-gramm_editor="false"
+                      data-enable-grammarly="false"
+                      placeholder="What was this for?"
+                      rows={2}
+                      value={form.description}
+                      onChange={set("description")}
+                      required
+                    />
+                  </Field>
+                  <Field>
+                    <FieldLabel>Date</FieldLabel>
+                    <Input type="date" value={form.date} onChange={set("date")} required />
+                  </Field>
+                </FieldGroup>
 
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={createExpense.isPending}>
-                  {createExpense.isPending && <Loader2 className="size-4 animate-spin" />}
-                  Save expense
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={createExpense.isPending}>
+                    {createExpense.isPending && <Loader2 className="size-4 animate-spin" />}
+                    Save expense
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardHeader>
 
       <CardContent className="px-0 pb-0">

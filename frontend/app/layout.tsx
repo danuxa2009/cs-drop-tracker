@@ -9,6 +9,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cookies } from "next/headers";
 import QueryProvider from "@/providers/QueryProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
+import { getIsGuest } from "@/lib/auth";
 
 const geistMono = Geist_Mono({ subsets: ["latin"] });
 
@@ -25,43 +27,46 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const sidebarState = cookieStore.get("sidebar_state")?.value;
   const defaultOpen = sidebarState !== "false";
+  const isGuest = await getIsGuest();
 
   return (
     <html lang="en" className="dark bg-background">
       <body className={`${geistMono.className} font-sans antialiased`}>
-        <QueryProvider>
-          <TooltipProvider>
-            <SidebarProvider defaultOpen={defaultOpen}>
-              <AppSidebar />
-              <SidebarInset className="bg-background">{children}</SidebarInset>
-            </SidebarProvider>
-          </TooltipProvider>
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: "oklch(0.17 0.006 240)",
-                color: "oklch(0.97 0 0)",
-                border: "1px solid oklch(0.26 0.008 240)",
-                fontSize: "14px",
-              },
-              success: {
-                iconTheme: {
-                  primary: "oklch(0.72 0.19 55)",
-                  secondary: "oklch(0.17 0.02 60)",
+        <AuthProvider isGuest={isGuest}>
+          <QueryProvider>
+            <TooltipProvider>
+              <SidebarProvider defaultOpen={defaultOpen}>
+                <AppSidebar />
+                <SidebarInset className="bg-background">{children}</SidebarInset>
+              </SidebarProvider>
+            </TooltipProvider>
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: "oklch(0.17 0.006 240)",
+                  color: "oklch(0.97 0 0)",
+                  border: "1px solid oklch(0.26 0.008 240)",
+                  fontSize: "14px",
                 },
-              },
-              error: {
-                iconTheme: {
-                  primary: "oklch(0.65 0.22 25)",
-                  secondary: "oklch(0.97 0 0)",
+                success: {
+                  iconTheme: {
+                    primary: "oklch(0.72 0.19 55)",
+                    secondary: "oklch(0.17 0.02 60)",
+                  },
                 },
-              },
-            }}
-          />
-          {process.env.NODE_ENV === "production" && <Analytics />}
-          {process.env.NODE_ENV === "production" && <SpeedInsights />}
-        </QueryProvider>
+                error: {
+                  iconTheme: {
+                    primary: "oklch(0.65 0.22 25)",
+                    secondary: "oklch(0.97 0 0)",
+                  },
+                },
+              }}
+            />
+            {process.env.NODE_ENV === "production" && <Analytics />}
+            {process.env.NODE_ENV === "production" && <SpeedInsights />}
+          </QueryProvider>
+        </AuthProvider>
       </body>
     </html>
   );
