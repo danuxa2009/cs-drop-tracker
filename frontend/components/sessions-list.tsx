@@ -81,17 +81,21 @@ export function SessionsList() {
                   aria-label={`Open session from ${formatRange(session.dateFrom, session.dateTo)} with ${session.accountsCount} accounts`}
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 space-y-1">
                         <p className="font-mono text-xs text-muted-foreground">Session {index + 1}</p>
-                        <p className="text-sm">{formatRange(session.dateFrom, session.dateTo)}</p>
+                        <p className="text-sm leading-snug truncate">
+                          {formatRange(session.dateFrom, session.dateTo)}
+                        </p>
                         <p className="text-xs text-muted-foreground">{session.accountsCount} accounts</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono font-semibold tabular-nums">
+                      <div className="flex flex-col items-end gap-2">
+                        <p className="font-mono text-sm font-semibold tabular-nums">
                           ${parseFloat(session.totalValue).toFixed(2)}
                         </p>
-                        <ChevronRight className="ml-auto mt-1 size-4 text-muted-foreground" />
+                        <span className="rounded-full border border-border/60 bg-muted px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                          View
+                        </span>
                       </div>
                     </div>
                   </CardContent>
