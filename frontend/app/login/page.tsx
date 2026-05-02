@@ -15,20 +15,31 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    if (loading) return;
+    if (!password) {
+      setError(true);
+      return;
+    }
+
     setLoading(true);
     setError(false);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ password }),
-      headers: { "Content-Type": "application/json" },
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+        headers: { "Content-Type": "application/json" },
+      });
 
-    if (res.ok) {
-      router.push("/");
-      router.refresh();
-    } else {
+      if (res.ok) {
+        router.push("/");
+        router.refresh();
+      } else {
+        setError(true);
+      }
+    } catch {
       setError(true);
+    } finally {
       setLoading(false);
     }
   };

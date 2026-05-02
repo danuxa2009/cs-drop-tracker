@@ -5,6 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/providers/AuthProvider";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast/headless";
 
 export function PageHeader({
   title,
@@ -21,9 +22,14 @@ export function PageHeader({
   const handleLogin = () => router.push("/login");
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    const res = await fetch("/api/auth/logout", { method: "POST" });
+    if (!res.ok) {
+      toast.error("Logout failed. Please try again.");
+      return;
+    }
     router.refresh();
   };
+
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-border/60 bg-background/80 px-4 backdrop-blur lg:px-6">
       <SidebarTrigger className="-ml-1" />
