@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "./ui/skeleton";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { formatDate } from "@/lib/utils";
 import { useExpensesList, useCreateExpense } from "@/lib/api/queries";
@@ -57,6 +58,7 @@ export function ExpensesManager() {
   const createExpense = useCreateExpense();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(getInitialForm);
+  const isMobile = useIsMobile();
 
   const set =
     (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) =>
@@ -176,59 +178,104 @@ export function ExpensesManager() {
         {expenses.length === 0 && !isLoading && !error && (
           <p className="py-12 text-center text-sm text-muted-foreground">No expenses yet</p>
         )}
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border/60 hover:bg-transparent">
-              {["#", "Date", "Category", "Description", "Amount"].map((header) => (
-                <TableHead
-                  key={header}
-                  className="text-xs uppercase tracking-wider text-muted-foreground first:pl-6 last:pr-6 last:text-right"
-                >
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        {isMobile ? (
+          <div className="space-y-3 px-4 pb-4">
             {isLoading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <TableRow key={i} className="border-border/60">
-                    <TableCell className="pl-6">
+                  <div key={i} className="rounded-2xl border border-border/60 bg-muted/10 p-3">
+                    <div className="flex items-center justify-between gap-3">
                       <Skeleton className="h-4 w-8" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-20 rounded-full" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-48" />
-                    </TableCell>
-                    <TableCell className="pr-6 flex justify-end">
-                      <Skeleton className="h-4 w-16" />
-                    </TableCell>
-                  </TableRow>
+                      <Skeleton className="h-5 w-16" />
+                    </div>
+                    <div className="mt-2 space-y-2">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-3 w-full" />
+                    </div>
+                  </div>
                 ))
               : expenses.map((expense, index) => (
-                  <TableRow key={expense.id} className="border-border/60">
-                    <TableCell className="pl-6 font-mono text-xs text-muted-foreground">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell className="text-sm">{formatDate(expense.date)}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`capitalize ${categoryClass[expense.category]}`}>
-                        {expense.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-md truncate text-sm">{expense.description}</TableCell>
-                    <TableCell className="pr-6 text-right font-mono font-semibold tabular-nums">
-                      ${Number(expense.amount).toFixed(2)}
-                    </TableCell>
-                  </TableRow>
+                  <div key={expense.id} className="rounded-2xl border border-border/60 bg-muted/10 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="font-mono">#{index + 1}</span>
+                          <span>·</span>
+                          <span>{formatDate(expense.date)}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge
+                            variant="outline"
+                            className={`capitalize ${categoryClass[expense.category]} text-[11px] py-1 px-2`}
+                          >
+                            {expense.category}
+                          </Badge>
+                        </div>
+                        <p className="max-w-full truncate text-sm leading-snug text-muted-foreground">
+                          {expense.description}
+                        </p>
+                      </div>
+                      <p className="shrink-0 whitespace-nowrap font-mono text-sm font-semibold tabular-nums">
+                        ${Number(expense.amount).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 ))}
-          </TableBody>
-        </Table>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/60 hover:bg-transparent">
+                {["#", "Date", "Category", "Description", "Amount"].map((header) => (
+                  <TableHead
+                    key={header}
+                    className="text-xs uppercase tracking-wider text-muted-foreground first:pl-6 last:pr-6 last:text-right"
+                  >
+                    {header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <TableRow key={i} className="border-border/60">
+                      <TableCell className="pl-6">
+                        <Skeleton className="h-4 w-8" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-5 w-20 rounded-full" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-48" />
+                      </TableCell>
+                      <TableCell className="pr-6 flex justify-end">
+                        <Skeleton className="h-4 w-16" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : expenses.map((expense, index) => (
+                    <TableRow key={expense.id} className="border-border/60">
+                      <TableCell className="pl-6 font-mono text-xs text-muted-foreground">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className="text-sm">{formatDate(expense.date)}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`capitalize ${categoryClass[expense.category]}`}>
+                          {expense.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-md truncate text-sm">{expense.description}</TableCell>
+                      <TableCell className="pr-6 text-right font-mono font-semibold tabular-nums">
+                        ${Number(expense.amount).toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
