@@ -16,18 +16,19 @@ const chartConfig = {
 export function WeeklyEarningsChart() {
   const { data: sessions, isLoading } = useSessionsList();
 
+  const orderedSessions = sessions ? [...sessions].reverse() : [];
   if (isLoading) {
     return <Skeleton className="h-70 w-full border-border/60" />;
   }
 
-  const weeklyEarnings = sessions?.map((session, index) => {
+  const weeklyEarnings = orderedSessions.map((session, index) => {
     return {
       week: `Week ${index + 1}`,
       earned: Number(session.totalValue),
     };
   });
 
-  const total = sessions?.reduce((sum, s) => sum + Number(s.totalValue), 0) ?? 0;
+  const total = orderedSessions.reduce((sum, s) => sum + Number(s.totalValue), 0);
 
   return (
     <Card className="border-border/60 bg-card">

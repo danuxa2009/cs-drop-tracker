@@ -83,7 +83,9 @@ export function SessionsList() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 space-y-1">
-                        <p className="font-mono text-xs text-muted-foreground">Session {index + 1}</p>
+                        <p className="font-mono text-xs text-muted-foreground">
+                          Week {sessions.length - index}
+                        </p>
                         <p className="text-sm leading-snug truncate">
                           {formatRange(session.dateFrom, session.dateTo)}
                         </p>
@@ -107,7 +109,7 @@ export function SessionsList() {
               <TableHeader>
                 <TableRow className="border-border/60 hover:bg-transparent">
                   <TableHead className="pl-6 text-xs uppercase tracking-wider text-muted-foreground">
-                    Session
+                    Week
                   </TableHead>
                   <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">
                     Date range
@@ -140,7 +142,7 @@ export function SessionsList() {
                     className="cursor-pointer border-border/60 transition-colors hover:bg-accent/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <TableCell className="pl-6 font-mono text-xs text-muted-foreground">
-                      {index + 1}
+                      {sessions.length - index}
                     </TableCell>
                     <TableCell className="text-sm">{formatRange(session.dateFrom, session.dateTo)}</TableCell>
                     <TableCell className="text-right font-mono tabular-nums">
