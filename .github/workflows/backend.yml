@@ -6,6 +6,8 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/backend.yml"
+    paths-ignore:
+      - "frontend/**"
   pull_request:
     branches: [main]
     paths:
@@ -57,5 +59,38 @@ jobs:
 
       - name: Run CodeRabbit AI Review
         uses: coderabbitai/ai-pr-reviewer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    needs: lint-and-build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm --filter "./backend" install
+
+      - name: Run semantic-release
+        working-directory: backend
+        run: pnpm dlx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
