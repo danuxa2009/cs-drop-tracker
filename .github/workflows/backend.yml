@@ -6,6 +6,8 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/backend.yml"
+    paths-ignore:
+      - "frontend/**"
   pull_request:
     branches: [main]
     paths:
