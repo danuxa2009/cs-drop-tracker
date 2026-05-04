@@ -24,6 +24,8 @@ export function SessionsTable() {
     return <Skeleton className="h-62 w-full border-border/60" />;
   }
 
+  const orderedSessions = sessions ?? [];
+
   return (
     <Card className="border-border/60 bg-card">
       <CardHeader>
@@ -33,11 +35,13 @@ export function SessionsTable() {
       <CardContent className="px-0 pb-0">
         {isMobile ? (
           <div className="space-y-3 px-4 pb-4">
-            {sessions?.map((session, index) => (
+            {orderedSessions.map((session, index) => (
               <div key={session.id} className="rounded-2xl border border-border/60 bg-muted/10 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0 space-y-1">
-                    <p className="text-xs font-mono text-muted-foreground">Session {index + 1}</p>
+                    <p className="text-xs font-mono text-muted-foreground">
+                      Week {orderedSessions.length - index}
+                    </p>
                     <p className="text-sm font-semibold text-foreground truncate">
                       {formatRange(session.dateFrom, session.dateTo)}
                     </p>
@@ -55,7 +59,7 @@ export function SessionsTable() {
             <TableHeader>
               <TableRow className="border-border/60 hover:bg-transparent">
                 <TableHead className="pl-6 text-xs uppercase tracking-wider text-muted-foreground">
-                  Session
+                  Week
                 </TableHead>
                 <TableHead className="text-xs uppercase tracking-wider text-muted-foreground">
                   Date range
@@ -69,9 +73,11 @@ export function SessionsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sessions?.map((session, index) => (
+              {orderedSessions.map((session, index) => (
                 <TableRow key={session.id} className="border-border/60">
-                  <TableCell className="pl-6 font-mono text-xs text-muted-foreground">{index + 1}</TableCell>
+                  <TableCell className="pl-6 font-mono text-xs text-muted-foreground">
+                    {orderedSessions.length - index}
+                  </TableCell>
                   <TableCell className="text-sm">{formatRange(session.dateFrom, session.dateTo)}</TableCell>
                   <TableCell className="text-right font-mono tabular-nums">{session.accountsCount}</TableCell>
                   <TableCell className="text-right font-mono font-semibold tabular-nums">
