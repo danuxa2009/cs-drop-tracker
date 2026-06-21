@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
-          token: ${{ secrets.RELEASE_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v3
         with:
