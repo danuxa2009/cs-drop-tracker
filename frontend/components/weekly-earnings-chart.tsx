@@ -16,7 +16,9 @@ const chartConfig = {
 export function WeeklyEarningsChart() {
   const { data: sessions, isLoading } = useSessionsList();
 
-  const orderedSessions = sessions ? [...sessions].reverse() : [];
+  const last8 = sessions ? sessions.slice(0, 8) : [];
+  const orderedSessions = [...last8].reverse();
+
   if (isLoading) {
     return <Skeleton className="h-70 w-full border-border/60" />;
   }
@@ -28,20 +30,12 @@ export function WeeklyEarningsChart() {
     };
   });
 
-  const total = orderedSessions.reduce((sum, s) => sum + Number(s.totalValue), 0);
-
   return (
     <Card className="border-border/60 bg-card">
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold">Weekly earnings</CardTitle>
           <CardDescription>Last 8 weeks of farming output</CardDescription>
-        </div>
-        <div className="text-right">
-          <div className="font-mono text-2xl font-semibold tabular-nums">
-            ${total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-          </div>
-          <div className="text-xs text-muted-foreground">total period</div>
         </div>
       </CardHeader>
       <CardContent>
