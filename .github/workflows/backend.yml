@@ -6,8 +6,6 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/backend.yml"
-    paths-ignore:
-      - "frontend/**"
   pull_request:
     branches: [main]
     paths:
@@ -44,23 +42,6 @@ jobs:
 
       - name: Build
         run: pnpm --filter "./backend" run build
-
-  coderabbit-review:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run CodeRabbit AI Review
-        uses: coderabbitai/ai-pr-reviewer@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     needs: lint-and-build
