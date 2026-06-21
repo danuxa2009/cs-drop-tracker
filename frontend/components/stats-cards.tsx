@@ -5,36 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "./ui/skeleton";
 import { useSessionsList, useExpensesList } from "@/lib/api/queries";
 
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-function splitHalves<T>(arr: T[]): [T[], T[]] {
-  const mid = Math.floor(arr.length / 2);
-  return [arr.slice(0, mid), arr.slice(mid)];
-}
-
-function sum(values: number[]) {
-  return values.reduce((acc, v) => acc + v, 0);
-}
-
-function avg(values: number[]) {
-  return values.length ? sum(values) / values.length : 0;
-}
-
-function percentDelta(prev: number, curr: number): string {
-  if (prev === 0) return "";
-  const pct = ((curr - prev) / prev) * 100;
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%`;
-}
+type Trend = "up" | "down";
 
 function formatUSD(value: number): string {
   return `$${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
-
-function trendFrom(delta: string): Trend {
-  return delta === "" || delta.startsWith("+") ? "up" : "down";
-}
-
-type Trend = "up" | "down";
 
 interface StatCard {
   title: string;
@@ -59,31 +34,25 @@ export function StatsCards() {
     );
   }
 
-  const sessionValues = sessions.map((s) => Number(s.totalValue));
-  const totalEarned = sum(sessionValues);
-  const totalExpenses = sum(expenses.map((e) => Number(e.amount)));
+  const totalEarned = sessions.reduce((acc, s) => acc + Number(s.totalValue), 0);
+  const totalExpenses = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
   const netProfit = totalEarned - totalExpenses;
-  const avgPerWeek = avg(sessionValues);
-
-  const [prevValues, currValues] = splitHalves(sessionValues);
-  const earnedDelta = percentDelta(sum(prevValues), sum(currValues));
-  const avgDelta = percentDelta(avg(prevValues), avg(currValues));
 
   const stats: StatCard[] = [
     {
       title: "Total earned",
       value: formatUSD(totalEarned),
-      delta: earnedDelta,
-      trend: trendFrom(earnedDelta),
-      hint: "vs. previous period",
+      delta: "",
+      trend: undefined,
+      hint: `${sessions.length} sessions`,
       icon: DollarSign,
     },
     {
-      title: "Avg / week",
-      value: formatUSD(avgPerWeek),
-      delta: avgDelta,
-      trend: trendFrom(avgDelta),
-      hint: `across ${sessions.length} sessions`,
+      title: "Total expenses",
+      value: formatUSD(totalExpenses),
+      delta: "",
+      trend: undefined,
+      hint: `${expenses.length} entries`,
       icon: CalendarRange,
     },
     {
