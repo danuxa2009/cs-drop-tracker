@@ -43,4 +43,4 @@ jobs:
         working-directory: frontend
         run: pnpm dlx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
